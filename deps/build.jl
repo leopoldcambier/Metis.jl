@@ -1,20 +1,10 @@
-using BinDeps,Compat
+using BinDeps,Compat,Homebrew
 
 @BinDeps.setup
 
 libmetis = library_dependency("libmetis", aliases=["libmetis5"])
 
-@windows_only begin
-    using WinRPM
-    provides(WinRPM.RPM, "metis", libmetis, os = :Windows)
-end
-
-@osx_only begin
-    if Pkg.installed("Homebrew") === nothing
-        error("Homebrew package not installed, please run Pkg.add(\"Homebrew\")")  end
-    using Homebrew
-    provides(Homebrew.HB, "metis", libmetis, os = :Darwin)
-end
+provides(Homebrew.HB, "metis", libmetis, os = :Darwin)
 
 provides(AptGet, "libmetis5", libmetis)
 

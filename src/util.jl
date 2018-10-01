@@ -1,5 +1,5 @@
 # convenienct function to flatten Vector of Vector
-function flatten{T}(x::Vector{Vector{T}})
+function flatten(x::Vector{Vector{T}}) where {T}
     out = T[]
     for y in x
         append!(out, y)

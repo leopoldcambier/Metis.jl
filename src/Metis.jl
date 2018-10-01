@@ -12,6 +12,7 @@ module Metis
 
     using Graphs,Compat                 # for AdjacencyList types
     using LightGraphs                   # metisform
+    using SparseArrays
     export
         nodeND,                         # determine fill-reducing permutation
         vertexSep,                      # single separator
@@ -31,7 +32,7 @@ module Metis
         err = ccall((:METIS_NodeND,libmetis), Cint,
                     (Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint},
                      Ptr{Cint}, Ptr{Cint}, Ptr{Cint}),
-                    &n, xadj, adjncy, C_NULL, metis_options, perm, iperm)
+                    Ref(n), xadj, adjncy, C_NULL, metis_options, perm, iperm)
         err == METIS_OK || error("METIS_NodeND returned error code $err")
         perm .+ one(Cint), iperm .+ one(Cint)
     end
@@ -46,7 +47,7 @@ module Metis
         err = ccall((:METIS_ComputeVertexSeparator,libmetis), Cint,
                     (Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint},
                      Ptr{Cint}, Ptr{Cint}, Ptr{Cint}),
-                    &n, xadj, adjncy, C_NULL, metis_options,
+                    Ref(n), xadj, adjncy, C_NULL, metis_options,
                     sepSize, part)
         err == METIS_OK || error("METIS_ComputeVertexSeparator returned error code $err")
 
@@ -65,7 +66,7 @@ module Metis
                     (Ptr{Int32}, Ptr{Int32}, Ptr{Int32}, Ptr{Int32}, Ptr{Int32},
                      Ptr{Int32}, Ptr{Int32}, Ptr{Int32}, Ptr{Int32}, Ptr{Int32},
                      Ptr{Int32}, Ptr{Int32}, Ptr{Int32}),
-                    &n, &one(Int32), xadj, adjncy, C_NULL, C_NULL, C_NULL, &convert(Int32,nparts),
+                    Ref(n), Ref(one(Int32)), xadj, adjncy, C_NULL, C_NULL, C_NULL, Ref(convert(Int32,nparts)),
                     C_NULL, C_NULL, metis_options, objval, part)
         err == METIS_OK || error("METIS_PartGraphKWay returned error code $err")
         objval[1], part .+ one(Cint)
@@ -79,7 +80,7 @@ module Metis
                     (Ptr{Int32}, Ptr{Int32}, Ptr{Int32}, Ptr{Int32}, Ptr{Int32},
                      Ptr{Int32}, Ptr{Int32}, Ptr{Int32}, Ptr{Int32}, Ptr{Int32},
                      Ptr{Int32}, Ptr{Int32}, Ptr{Int32}),
-                    &n, &one(Int32), xadj, adjncy, C_NULL, C_NULL, C_NULL, &convert(Int32,nparts),
+                    Ref(n), Ref(one(Int32)), xadj, adjncy, C_NULL, C_NULL, C_NULL, Ref(convert(Int32,nparts)),
                     C_NULL, C_NULL, metis_options, objval, part)
         err == METIS_OK || error("METIS_PartGraphRecursive returned error code $err")
         objval[1], part .+ one(Cint)
